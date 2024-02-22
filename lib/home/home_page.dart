@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_task/home/models/cart.dart';
 import 'package:grocery_task/home/models/product.dart';
@@ -118,17 +119,19 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           bottomNavigationBar: BottomNavigationBar(
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(CupertinoIcons.home),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart),
+                icon: Icon(CupertinoIcons.cart),
                 label: 'Cart',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
+                icon: Icon(CupertinoIcons.heart),
                 label: 'Wishlist',
               ),
             ],
