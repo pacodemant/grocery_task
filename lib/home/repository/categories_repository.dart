@@ -8,7 +8,7 @@ class CategoryRepository {
   }
 }
 
-final List<Category> categoriesMock = [
+final List<Category> categoriesMock = const [
   Category(
     name: 'Vegetable',
     iconAsset: 'assets/icons/vegetables.png',

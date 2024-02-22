@@ -5,5 +5,6 @@ class Category {
   final String iconAsset;
   final Color color;
 
-  Category({required this.name, required this.iconAsset, required this.color});
+  const Category(
+      {required this.name, required this.iconAsset, required this.color});
 }

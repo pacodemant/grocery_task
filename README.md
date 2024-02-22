@@ -1,9 +1,10 @@
 # grocery_task
 
-A new Flutter project.
+A small FLutter UI Challange for Chapter 4 - Flutter I.
+
 
 ## Getting Started
-
+![home.jpeg](home.jpeg)
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:

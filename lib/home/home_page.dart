@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:grocery_task/home/models/cart.dart';
 import 'package:grocery_task/home/models/product.dart';
-import 'package:grocery_task/home/repository/categories_repository.dart';
 import 'package:grocery_task/home/repository/products_repository.dart';
-import 'package:grocery_task/home/widgets/category_item.dart';
+import 'package:grocery_task/home/widgets/action_headline.dart';
+import 'package:grocery_task/home/widgets/categories_section.dart';
 import 'package:grocery_task/home/widgets/hero_image.dart';
 import 'package:grocery_task/home/widgets/product_item.dart';
 
@@ -15,8 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _categories = CategoryRepository().getCategories();
-
   final _products = ProductsRepository().getProducts();
 
   final Cart cart = Cart([]);
@@ -70,70 +68,71 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: const Color(0xffF4F5F9),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search keywords..',
-                    prefixIcon: Icon(Icons.search),
-                    fillColor: Color(0xffe4e5e9),
-                    filled: true,
-                    border: InputBorder.none,
+          backgroundColor: const Color(0xffF4F5F9),
+          body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search keywords..',
+                      prefixIcon: Icon(Icons.search),
+                      fillColor: Color(0xffe4e5e9),
+                      filled: true,
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const HeroImage(),
-              const SizedBox(height: 20),
-              Text('Categories',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    return CategoryItem(category: category);
-                  },
+                const SizedBox(height: 20),
+                const HeroImage(),
+                const SizedBox(height: 20),
+                CategoriesSection(),
+                const SizedBox(height: 20),
+                const ActionHeadline(title: 'Featured products'),
+                const SizedBox(height: 12),
+                Wrap(
+                  runSpacing: 20,
+                  alignment: WrapAlignment.spaceBetween,
+                  children: [
+                    for (final product in _products)
+                      ProductItem(
+                        product: product,
+                        quantity: cart.items
+                            .firstWhere((element) => element.product == product,
+                                orElse: () =>
+                                    CartItem(product: product, quantity: 0))
+                            .quantity,
+                        onAddToCart: () => onAddItem(product),
+                        onRemoveItem: () => onRemoveItem(product),
+                        toggleFavorite: () => toggleFavoriteList(product),
+                        isFavorite: wishlist.contains(product),
+                      ),
+                  ],
                 ),
+                const SizedBox(
+                  height: 22,
+                ),
+              ],
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
               ),
-              const SizedBox(height: 20),
-              Text('Featured products',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 12),
-              Wrap(
-                runSpacing: 20,
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  for (final product in _products)
-                    ProductItem(
-                      product: product,
-                      quantity: cart.items
-                          .firstWhere((element) => element.product == product,
-                              orElse: () =>
-                                  CartItem(product: product, quantity: 0))
-                          .quantity,
-                      onAddToCart: () => onAddItem(product),
-                      onRemoveItem: () => onRemoveItem(product),
-                      toggleFavorite: () => toggleFavoriteList(product),
-                      isFavorite: wishlist.contains(product),
-                    ),
-                ],
+              BottomNavigationBarItem(
+                icon: Icon(Icons.shopping_cart),
+                label: 'Cart',
               ),
-              const SizedBox(
-                height: 22,
+              BottomNavigationBarItem(
+                icon: Icon(Icons.favorite),
+                label: 'Wishlist',
               ),
             ],
-          ),
-        ),
-      ),
+          )),
     );
   }
 }
