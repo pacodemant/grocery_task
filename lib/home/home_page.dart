@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:grocery_task/home/models/cart.dart';
 import 'package:grocery_task/home/models/product.dart';
 import 'package:grocery_task/home/repository/products_repository.dart';
@@ -9,7 +10,9 @@ import 'package:grocery_task/home/widgets/hero_image.dart';
 import 'package:grocery_task/home/widgets/product_item.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({required this.toggleTheme, Key? key}) : super(key: key);
+
+  final VoidCallback toggleTheme;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -69,7 +72,6 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-          backgroundColor: const Color(0xffF4F5F9),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: ListView(
@@ -115,7 +117,13 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(
                   height: 22,
                 ),
-              ],
+                FilledButton(
+                  onPressed: () {
+                    widget.toggleTheme();
+                  },
+                  child: Text('Change Theme'),
+                ),
+              ].animate(interval: const Duration(milliseconds: 100)).fadeIn(),
             ),
           ),
           bottomNavigationBar: BottomNavigationBar(

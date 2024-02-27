@@ -17,10 +17,7 @@ class ActionHeadline extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.headlineSmall,
         ),
         IconButton(
           onPressed: onPressed,

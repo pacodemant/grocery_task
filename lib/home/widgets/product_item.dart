@@ -27,7 +27,7 @@ class ProductItem extends StatelessWidget {
     return Container(
       width: 170,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
