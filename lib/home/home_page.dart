@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+import 'package:grocery_task/home/cart/cart_page.dart';
 import 'package:grocery_task/home/models/cart.dart';
 import 'package:grocery_task/home/models/product.dart';
 import 'package:grocery_task/home/repository/products_repository.dart';
-import 'package:grocery_task/home/widgets/action_headline.dart';
-import 'package:grocery_task/home/widgets/categories_section.dart';
-import 'package:grocery_task/home/widgets/hero_image.dart';
-import 'package:grocery_task/home/widgets/product_item.dart';
+import 'package:grocery_task/home/widgets/home_body.dart';
+import 'package:grocery_task/home/wishlist/wishlist_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({required this.toggleTheme, Key? key}) : super(key: key);
@@ -25,45 +23,11 @@ class _HomePageState extends State<HomePage> {
 
   final List<Product> wishlist = [];
 
-  void onAddItem(Product product) {
-    setState(() {
-      if (cart.items.any((element) => element.product == product)) {
-        cart.items
-            .firstWhere((element) => element.product == product)
-            .quantity++;
-        return;
-      } else {
-        cart.items.add(
-          CartItem(product: product, quantity: 1),
-        );
-      }
-    });
-  }
+  int _selectedIndex = 0;
 
-  void onRemoveItem(Product product) {
+  void _updateIndex(int index) {
     setState(() {
-      if (cart.items.any((element) => element.product == product) &&
-          cart.items
-                  .firstWhere((element) => element.product == product)
-                  .quantity >
-              1) {
-        cart.items
-            .firstWhere((element) => element.product == product)
-            .quantity--;
-        return;
-      } else {
-        cart.items.removeWhere((element) => element.product == product);
-      }
-    });
-  }
-
-  void toggleFavoriteList(Product product) {
-    setState(() {
-      if (wishlist.contains(product)) {
-        wishlist.remove(product);
-      } else {
-        wishlist.add(product);
-      }
+      _selectedIndex = index;
     });
   }
 
@@ -72,78 +36,42 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ListView(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search keywords..',
-                      prefixIcon: Icon(Icons.search),
-                      fillColor: Color(0xffe4e5e9),
-                      filled: true,
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                const HeroImage(),
-                const SizedBox(height: 20),
-                CategoriesSection(),
-                const SizedBox(height: 20),
-                const ActionHeadline(title: 'Featured products'),
-                const SizedBox(height: 12),
-                Wrap(
-                  runSpacing: 20,
-                  alignment: WrapAlignment.spaceBetween,
-                  children: [
-                    for (final product in _products)
-                      ProductItem(
-                        product: product,
-                        quantity: cart.items
-                            .firstWhere((element) => element.product == product,
-                                orElse: () =>
-                                    CartItem(product: product, quantity: 0))
-                            .quantity,
-                        onAddToCart: () => onAddItem(product),
-                        onRemoveItem: () => onRemoveItem(product),
-                        toggleFavorite: () => toggleFavoriteList(product),
-                        isFavorite: wishlist.contains(product),
-                      ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 22,
-                ),
-                FilledButton(
-                  onPressed: () {
-                    widget.toggleTheme();
-                  },
-                  child: Text('Change Theme'),
-                ),
-              ].animate(interval: const Duration(milliseconds: 100)).fadeIn(),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: [
+            HomeBody(
+              products: _products,
+              cart: cart,
+              wishlist: wishlist,
+              toggleTheme: widget.toggleTheme,
             ),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.cart),
-                label: 'Cart',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.heart),
-                label: 'Wishlist',
-              ),
-            ],
-          )),
+            const CartPage(),
+            WishlistPage(
+              wishlist: wishlist,
+            ),
+          ][_selectedIndex],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          onTap: _updateIndex,
+          currentIndex: _selectedIndex,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.cart),
+              label: 'Cart',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.heart),
+              label: 'Wishlist',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
