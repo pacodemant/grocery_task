@@ -39,12 +39,22 @@ class _HomePageState extends State<HomePage> {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: [
-            HomeBody(
-              products: _products,
-              cart: cart,
-              wishlist: wishlist,
-              toggleTheme: widget.toggleTheme,
-            ),
+            FutureBuilder(
+                future: _products,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return HomeBody(
+                      products: snapshot.data!,
+                      cart: cart,
+                      wishlist: wishlist,
+                      toggleTheme: widget.toggleTheme,
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                }),
             const CartPage(),
             WishlistPage(
               wishlist: wishlist,

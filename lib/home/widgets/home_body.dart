@@ -112,12 +112,6 @@ class _HomeBodyState extends State<HomeBody> {
         const SizedBox(
           height: 22,
         ),
-        FilledButton(
-          onPressed: () {
-            widget.toggleTheme();
-          },
-          child: const Text('Change Theme'),
-        ),
       ].animate(interval: const Duration(milliseconds: 100)).fadeIn(),
     );
   }
