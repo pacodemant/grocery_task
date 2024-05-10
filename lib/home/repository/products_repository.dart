@@ -7,6 +7,10 @@ class ProductsRepository {
 
     return productsMock;
   }
+
+  Stream<List<Product>> getProductsStream() {
+    return Stream.value(productsMock);
+  }
 }
 
 final List<Product> productsMock = [
