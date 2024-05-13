@@ -8,8 +8,9 @@ class ProductsRepository {
     return productsMock;
   }
 
-  Stream<List<Product>> getProductsStream() {
-    return Stream.value(productsMock);
+  Future<Stream<List<Product>>> getProductsStream() async {
+    return Future.delayed(const Duration(seconds: 2))
+        .then((value) => Stream.value(productsMock));
   }
 }
 

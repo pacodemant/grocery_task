@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:grocery_task/home/repository/categories_repository.dart';
+import 'package:grocery_task/home/provider/categories_provider.dart';
 import 'package:grocery_task/home/widgets/action_headline.dart';
 import 'package:grocery_task/home/widgets/category_item.dart';
+import 'package:provider/provider.dart';
 
 class CategoriesSection extends StatelessWidget {
-  CategoriesSection({super.key});
-  final _categories = CategoryRepository().getCategories();
+  const CategoriesSection({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final categories = context.watch<CategoriesProvider>().categories;
     return Column(
       children: [
         const ActionHeadline(title: 'Categories'),
@@ -17,9 +18,9 @@ class CategoriesSection extends StatelessWidget {
           height: 100,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _categories.length,
+            itemCount: categories.length,
             itemBuilder: (context, index) {
-              final category = _categories[index];
+              final category = categories[index];
               return CategoryItem(category: category);
             },
           ),

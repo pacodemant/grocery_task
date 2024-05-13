@@ -6,6 +6,10 @@ class CategoryRepository {
   List<Category> getCategories() {
     return categoriesMock;
   }
+
+  Stream<List<Category>> getCategoriesStream() {
+    return Stream.value(categoriesMock);
+  }
 }
 
 final List<Category> categoriesMock = const [

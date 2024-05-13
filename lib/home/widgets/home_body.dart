@@ -2,24 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:grocery_task/home/models/cart.dart';
 import 'package:grocery_task/home/models/product.dart';
+import 'package:grocery_task/home/provider/products_provider.dart';
 import 'package:grocery_task/home/widgets/action_headline.dart';
 import 'package:grocery_task/home/widgets/categories_section.dart';
 import 'package:grocery_task/home/widgets/hero_image.dart';
 import 'package:grocery_task/home/widgets/product_item.dart';
+import 'package:provider/provider.dart';
 
 class HomeBody extends StatefulWidget {
-  const HomeBody(
-      {Key? key,
-      required this.products,
-      required this.cart,
-      required this.wishlist,
-      required this.toggleTheme})
-      : super(key: key);
+  const HomeBody({
+    Key? key,
+    required this.cart,
+    required this.wishlist,
+  }) : super(key: key);
 
-  final List<Product> products;
   final Cart cart;
   final List<Product> wishlist;
-  final VoidCallback toggleTheme;
 
   @override
   State<HomeBody> createState() => _HomeBodyState();
@@ -70,6 +68,7 @@ class _HomeBodyState extends State<HomeBody> {
 
   @override
   Widget build(BuildContext context) {
+    final productModel = context.watch<ProductsProvider>();
     return ListView(
       children: [
         ClipRRect(
@@ -95,7 +94,7 @@ class _HomeBodyState extends State<HomeBody> {
           runSpacing: 20,
           alignment: WrapAlignment.spaceBetween,
           children: [
-            for (final product in widget.products)
+            for (final product in productModel.products)
               ProductItem(
                 product: product,
                 quantity: widget.cart.items
@@ -107,6 +106,10 @@ class _HomeBodyState extends State<HomeBody> {
                 toggleFavorite: () => toggleFavoriteList(product),
                 isFavorite: widget.wishlist.contains(product),
               ),
+            if (productModel.products.isEmpty && !productModel.isLoading)
+              const Text('No products found'),
+            if (productModel.isLoading)
+              const Center(child: CircularProgressIndicator()),
           ],
         ),
         const SizedBox(

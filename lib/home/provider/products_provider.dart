@@ -5,6 +5,7 @@ import 'package:grocery_task/home/repository/products_repository.dart';
 class ProductsProvider with ChangeNotifier {
   final ProductsRepository productRepository;
   final List<Product> _products = [];
+  bool isLoading = false;
 
   List<Product> get products => _products;
 
@@ -12,10 +13,15 @@ class ProductsProvider with ChangeNotifier {
     _loadProducts();
   }
 
-  void _loadProducts() {
-    productRepository.getProductsStream().listen((products) {
+  void _loadProducts() async {
+    isLoading = true;
+    notifyListeners();
+    final stream = await productRepository.getProductsStream();
+
+    stream.listen((products) {
       _products.clear();
       _products.addAll(products);
+      isLoading = false;
       notifyListeners();
     });
   }
