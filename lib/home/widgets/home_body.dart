@@ -1,3 +1,4 @@
+// home/widgets/home_body.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:grocery_task/home/models/cart.dart';
@@ -86,7 +87,7 @@ class _HomeBodyState extends State<HomeBody> {
         const SizedBox(height: 20),
         const HeroImage(),
         const SizedBox(height: 20),
-        CategoriesSection(),
+        const CategoriesSection(),
         const SizedBox(height: 20),
         const ActionHeadline(title: 'Featured products'),
         const SizedBox(height: 12),
