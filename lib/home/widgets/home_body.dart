@@ -108,7 +108,16 @@ class _HomeBodyState extends State<HomeBody> {
                 isFavorite: widget.wishlist.contains(product),
               ),
             if (productModel.products.isEmpty && !productModel.isLoading)
-              const Text('No products found'),
+              Column(
+                children: [
+                  const Text('No products found'),
+                  FilledButton(
+                    onPressed:
+                        context.read<ProductsProvider>().addProductsToFirestore,
+                    child: const Text('Add Products to Firestore'),
+                  ),
+                ],
+              ),
             if (productModel.isLoading)
               const Center(child: CircularProgressIndicator()),
           ],

@@ -16,7 +16,7 @@ class ProductsProvider with ChangeNotifier {
   void _loadProducts() async {
     isLoading = true;
     notifyListeners();
-    final stream = await productRepository.getProductsStream();
+    final stream =  productRepository.getProductsStream();
 
     stream.listen((products) {
       _products.clear();
@@ -29,5 +29,9 @@ class ProductsProvider with ChangeNotifier {
   void addProduct(Product product) {
     _products.add(product);
     notifyListeners();
+  }
+
+  void addProductsToFirestore() {
+    productRepository.addProductsToFirestore();
   }
 }

@@ -1,5 +1,7 @@
+// home/repository/products_repository.dart
 import 'package:flutter/material.dart';
 import 'package:grocery_task/home/models/product.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProductsRepository {
   Future<List<Product>> getProducts() async {
@@ -8,9 +10,30 @@ class ProductsRepository {
     return productsMock;
   }
 
-  Future<Stream<List<Product>>> getProductsStream() async {
-    return Future.delayed(const Duration(seconds: 2))
-        .then((value) => Stream.value(productsMock));
+  Stream<List<Product>> getProductsStream() {
+    return FirebaseFirestore.instance.collection('products').snapshots().map(
+      (snapshot) {
+        return snapshot.docs
+            .map((doc) => Product.fromJson(doc.data()))
+            .toList();
+      },
+    );
+  }
+
+  Future<void> addProductsToFirestore() async {
+    await FirebaseFirestore.instance
+        .collection('products')
+        .get()
+        .then((snapshot) {
+      snapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+    // Add products to firestore
+    for (Product product in productsMock) {
+      // Add product to firestore
+      FirebaseFirestore.instance.collection('products').add(product.toJson());
+    }
   }
 }
 

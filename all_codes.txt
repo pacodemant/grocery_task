@@ -1,0 +1,1121 @@
+// ./lib/home/repository/products_repository.dart
+// home/repository/products_repository.dart
+import 'package:flutter/material.dart';import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/product.dart';
+
+class ProductsRepository {
+  Future<List<Product>> getProducts() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    return productsMock;
+  }
+
+  Future<Stream<List<Product>>> getProductsStream() async {
+    return Future.delayed(const Duration(seconds: 2))
+        .then((value) => Stream.value(productsMock));
+  }
+}
+
+final List<Product> productsMock = [
+  const Product(
+    name: 'Fresh Peach',
+    description: 'dozen',
+    price: 8.00,
+    imageAsset: 'assets/images/peach.png',
+    color: Color(
+      0xffFFCEC1,
+    ),
+  ),
+  const Product(
+    name: 'Avocado',
+    description: '2.0 lbs',
+    price: 7.00,
+    imageAsset: 'assets/images/avocado.png',
+    color: Color(
+      0xffFCFFD9,
+    ),
+    badge: ProductBadge(
+      name: 'New',
+      color: Color(0xffE8AD41),
+    ),
+  ),
+  const Product(
+    name: 'Pineapple',
+    description: '1.15 lbs',
+    price: 9.90,
+    imageAsset: 'assets/images/pineapple.png',
+    color: Color(
+      0xffFFE6C2,
+    ),
+  ),
+  const Product(
+    name: 'Black grapes',
+    description: '5 lbs',
+    price: 7.05,
+    imageAsset: 'assets/images/grapes.png',
+    color: Color(
+      0xffFEE1ED,
+    ),
+    badge: ProductBadge(
+      name: '-16%',
+      color: Color(0xffF56262),
+    ),
+  ),
+  const Product(
+    name: 'Pomegranate',
+    description: '1.50 lbs',
+    price: 2.09,
+    imageAsset: 'assets/images/pomegranate.png',
+    color: Color(
+      0xffFFE3E2,
+    ),
+    badge: ProductBadge(
+      name: 'New',
+      color: Color(0xffE8AD41),
+    ),
+  ),
+  const Product(
+    name: 'Fresh Broccoli',
+    description: '3 lbs',
+    price: 1,
+    imageAsset: 'assets/images/broccoli.png',
+    color: Color(
+      0xffD2FFD0,
+    ),
+  ),
+];
+
+// ./lib/home/repository/categories_repository.dart
+// home/repository/categories_repository.dart
+import 'dart:ui';
+
+import 'package:grocery_task/home/models/category.dart';
+
+class CategoryRepository {
+  List<Category> getCategories() {
+    return categoriesMock;
+  }
+
+  Stream<List<Category>> getCategoriesStream() {
+    return Stream.value(categoriesMock);
+  }
+}
+
+const List<Category> categoriesMock = [
+  Category(
+    name: 'Vegetable',
+    iconAsset: 'assets/icons/vegetables.png',
+    color: Color(0xff28B446),
+  ),
+  Category(
+    name: 'Fruits',
+    iconAsset: 'assets/icons/fruits.png',
+    color: Color(0xffF8644A),
+  ),
+  Category(
+    name: 'Beverages',
+    iconAsset: 'assets/icons/beverages.png',
+    color: Color(0xffF5BA3C),
+  ),
+  Category(
+    name: 'Grocery',
+    iconAsset: 'assets/icons/grocery.png',
+    color: Color(0xffAE80FF),
+  ),
+  Category(
+    name: 'Edible Oil',
+    iconAsset: 'assets/icons/edible_oil.png',
+    color: Color(0xff0CD4DC),
+  ),
+  Category(
+    name: 'Household',
+    iconAsset: 'assets/icons/vacuum.png',
+    color: Color(0xffFF7EB6),
+  ),
+];
+
+// ./lib/home/provider/products_provider.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/product.dart';
+import 'package:grocery_task/home/repository/products_repository.dart';
+
+class ProductsProvider with ChangeNotifier {
+  final ProductsRepository productRepository;
+  final List<Product> _products = [];
+  bool isLoading = false;
+
+  List<Product> get products => _products;
+
+  ProductsProvider(this.productRepository) {
+    _loadProducts();
+  }
+
+  void _loadProducts() async {
+    isLoading = true;
+    notifyListeners();
+    final stream = await productRepository.getProductsStream();
+
+    stream.listen((products) {
+      _products.clear();
+      _products.addAll(products);
+      isLoading = false;
+      notifyListeners();
+    });
+  }
+
+  void addProduct(Product product) {
+    _products.add(product);
+    notifyListeners();
+  }
+}
+
+// ./lib/home/provider/categories_provider.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/category.dart';
+import 'package:grocery_task/home/repository/categories_repository.dart';
+
+class CategoriesProvider with ChangeNotifier {
+  final CategoryRepository categoryRepository;
+
+  CategoriesProvider(this.categoryRepository) {
+    _loadCategories();
+  }
+  final List<Category> _categories = [];
+
+  List<Category> get categories => _categories;
+
+  void _loadCategories() {
+    categoryRepository.getCategoriesStream().listen((categories) {
+      _categories.clear();
+      _categories.addAll(categories);
+      notifyListeners();
+    });
+  }
+}
+
+// ./lib/home/models/product.dart
+import 'dart:ui';
+
+import 'package:grocery_task/home/models/category.dart';
+
+class Product {
+  final String name;
+  final String description;
+  final double price;
+  final Category? category;
+
+  final String imageAsset;
+
+  final Color color;
+
+  final ProductBadge? badge;
+
+  const Product({
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.imageAsset,
+    required this.color,
+    this.category,
+    this.badge,
+  });
+}
+
+class ProductBadge {
+  final String name;
+  final Color color;
+
+  const ProductBadge({
+    required this.name,
+    required this.color,
+  });
+}
+
+// ./lib/home/models/category.dart
+import 'package:flutter/cupertino.dart';
+
+class Category {
+  final String name;
+  final String iconAsset;
+  final Color color;
+
+  const Category(
+      {required this.name, required this.iconAsset, required this.color});
+}
+
+// ./lib/home/models/cart.dart
+import 'package:grocery_task/home/models/product.dart';
+
+class Cart {
+  List<CartItem> items;
+
+  Cart(this.items);
+}
+
+class CartItem {
+  final Product product;
+  int quantity;
+
+  CartItem({
+    required this.product,
+    required this.quantity,
+  });
+}
+
+// ./lib/home/home_page.dart
+// home/home_page.dart
+// ignore_for_file: unused_import// ignore_for_file: unused_import, unused_import
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/cart/cart_page.dart';
+import 'package:grocery_task/home/models/cart.dart';
+import 'package:grocery_task/home/models/product.dart';
+import 'package:grocery_task/home/provider/categories_provider.dart';
+import 'package:grocery_task/home/repository/products_repository.dart';
+import 'package:grocery_task/home/widgets/home_body.dart';
+import 'package:grocery_task/home/wishlist/wishlist_page.dart';
+import 'package:provider/provider.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({required this.toggleTheme, Key? key}) : super(key: key);
+
+  final VoidCallback toggleTheme;
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final Cart cart = Cart([]);
+
+  int _selectedIndex = 0;
+  final List<Product> wishlist = [];
+
+  void _updateIndex(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: [
+            HomeBody(
+              cart: cart,
+              wishlist: wishlist,
+            ),
+            const CartPage(),
+            WishlistPage(
+              wishlist: wishlist,
+            ),
+          ][_selectedIndex],
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          onTap: _updateIndex,
+          currentIndex: _selectedIndex,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.cart),
+              label: 'Cart',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.heart),
+              label: 'Wishlist',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ./lib/home/cart/cart_page.dart
+import 'package:flutter/material.dart';
+
+class CartPage extends StatelessWidget {
+  const CartPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+// ./lib/home/widgets/action_headline.dart
+import 'package:flutter/material.dart';
+
+class ActionHeadline extends StatelessWidget {
+  const ActionHeadline({
+    required this.title,
+    this.onPressed,
+    super.key,
+  });
+
+  final String title;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        IconButton(
+          onPressed: onPressed,
+          icon: const Icon(
+            Icons.chevron_right,
+            size: 28,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ./lib/home/widgets/image_showcase.dart
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+
+class ImageShowcase extends StatefulWidget {
+  const ImageShowcase({Key? key}) : super(key: key);
+
+  @override
+  State<ImageShowcase> createState() => _ImageShowcaseState();
+}
+
+class _ImageShowcaseState extends State<ImageShowcase> {
+  String? _imagePath;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FilledButton(
+          onPressed: () async {
+            final ImagePicker picker = ImagePicker();
+
+            final XFile? image =
+                await picker.pickImage(source: ImageSource.gallery);
+
+            if (image != null) {
+              setState(() {
+                _imagePath = image.path;
+              });
+            }
+          },
+          child: const Text('Choose image'),
+        ),
+        const SizedBox(height: 16),
+        if (_imagePath != null)
+          Image.file(
+            File(_imagePath!),
+            height: 200,
+            width: 200,
+          ),
+      ],
+    );
+  }
+}
+
+// ./lib/home/widgets/category_item.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/category.dart';
+
+class CategoryItem extends StatelessWidget {
+  const CategoryItem({
+    super.key,
+    required this.category,
+  });
+
+  final Category category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: category.color.withOpacity(0.2),
+            child: Image.asset(
+              category.iconAsset,
+              height: 28,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            category.name,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ./lib/home/widgets/product_item.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/product.dart';
+
+class ProductItem extends StatelessWidget {
+  const ProductItem({
+    super.key,
+    required this.product,
+    required this.quantity,
+    required this.onAddToCart,
+    required this.onRemoveItem,
+    required this.toggleFavorite,
+    required this.isFavorite,
+  });
+
+  final Product product;
+  final int quantity;
+
+  final VoidCallback onAddToCart;
+
+  final VoidCallback onRemoveItem;
+
+  final VoidCallback toggleFavorite;
+
+  final bool isFavorite;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 170,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (product.badge != null)
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: product.badge!.color.withOpacity(0.2),
+                    ),
+                    child: Text(
+                      product.badge!.name,
+                      style: TextStyle(
+                        color: product.badge!.color,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              const Spacer(),
+              IconButton(
+                onPressed: toggleFavorite,
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border_rounded,
+                  color: isFavorite ? Colors.red : null,
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: product.color,
+                      radius: 50,
+                    ),
+                    Positioned(
+                      bottom: -15,
+                      left: 0,
+                      right: 0,
+                      child: Image.asset(
+                        product.imageAsset,
+                        width: 150,
+                        height: 75,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 28),
+                Text(
+                  '\$${product.price}',
+                  style: const TextStyle(color: Colors.green),
+                ),
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  product.description,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const Divider(),
+          if (quantity > 0)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    onRemoveItem();
+                  },
+                  icon: const Icon(Icons.remove),
+                ),
+                Text(
+                  quantity.toString(),
+                ),
+                IconButton(
+                  onPressed: () {
+                    onAddToCart();
+                  },
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            )
+          else
+            TextButton(
+              onPressed: () {
+                onAddToCart();
+              },
+              child: const Text('Add to cart'),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ./lib/home/widgets/categories_section.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/provider/categories_provider.dart';
+import 'package:grocery_task/home/widgets/action_headline.dart';
+import 'package:grocery_task/home/widgets/category_item.dart';
+import 'package:provider/provider.dart';
+
+class CategoriesSection extends StatelessWidget {
+  const CategoriesSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = context.watch<CategoriesProvider>().categories;
+    return Column(
+      children: [
+        const ActionHeadline(title: 'Categories'),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return CategoryItem(category: category);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ./lib/home/widgets/hero_image.dart
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+
+class HeroImage extends StatelessWidget {
+  const HeroImage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        CachedNetworkImage(
+          height: 300,
+          imageUrl:
+              'https://images.unsplash.com/photo-1542838132-92c53300491e?q=98&w=1548&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+          placeholder: (context, url) => const SizedBox(
+            height: 300,
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+        const Positioned(
+          bottom: 80,
+          left: 40,
+          width: 200,
+          child: Text(
+            '20% off on your first purchase',
+            style: TextStyle(
+                color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+// ./lib/home/widgets/home_body.dart
+// home/widgets/home_body.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:grocery_task/home/models/cart.dart';
+import 'package:grocery_task/home/models/product.dart';
+import 'package:grocery_task/home/provider/products_provider.dart';
+import 'package:grocery_task/home/widgets/action_headline.dart';
+import 'package:grocery_task/home/widgets/categories_section.dart';
+import 'package:grocery_task/home/widgets/hero_image.dart';
+import 'package:grocery_task/home/widgets/product_item.dart';
+import 'package:provider/provider.dart';
+
+class HomeBody extends StatefulWidget {
+  const HomeBody({
+    Key? key,
+    required this.cart,
+    required this.wishlist,
+  }) : super(key: key);
+
+  final Cart cart;
+  final List<Product> wishlist;
+
+  @override
+  State<HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends State<HomeBody> {
+  void onAddItem(Product product) {
+    setState(() {
+      if (widget.cart.items.any((element) => element.product == product)) {
+        widget.cart.items
+            .firstWhere((element) => element.product == product)
+            .quantity++;
+        return;
+      } else {
+        widget.cart.items.add(
+          CartItem(product: product, quantity: 1),
+        );
+      }
+    });
+  }
+
+  void onRemoveItem(Product product) {
+    setState(() {
+      if (widget.cart.items.any((element) => element.product == product) &&
+          widget.cart.items
+                  .firstWhere((element) => element.product == product)
+                  .quantity >
+              1) {
+        widget.cart.items
+            .firstWhere((element) => element.product == product)
+            .quantity--;
+        return;
+      } else {
+        widget.cart.items.removeWhere((element) => element.product == product);
+      }
+    });
+  }
+
+  void toggleFavoriteList(Product product) {
+    setState(() {
+      if (widget.wishlist.contains(product)) {
+        widget.wishlist.remove(product);
+      } else {
+        widget.wishlist.add(product);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final productModel = context.watch<ProductsProvider>();
+    return ListView(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: const TextField(
+            decoration: InputDecoration(
+              hintText: 'Search keywords..',
+              prefixIcon: Icon(Icons.search),
+              fillColor: Color(0xffe4e5e9),
+              filled: true,
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const HeroImage(),
+        const SizedBox(height: 20),
+        const CategoriesSection(),
+        const SizedBox(height: 20),
+        const ActionHeadline(title: 'Featured products'),
+        const SizedBox(height: 12),
+        Wrap(
+          runSpacing: 20,
+          alignment: WrapAlignment.spaceBetween,
+          children: [
+            for (final product in productModel.products)
+              ProductItem(
+                product: product,
+                quantity: widget.cart.items
+                    .firstWhere((element) => element.product == product,
+                        orElse: () => CartItem(product: product, quantity: 0))
+                    .quantity,
+                onAddToCart: () => onAddItem(product),
+                onRemoveItem: () => onRemoveItem(product),
+                toggleFavorite: () => toggleFavoriteList(product),
+                isFavorite: widget.wishlist.contains(product),
+              ),
+            if (productModel.products.isEmpty && !productModel.isLoading)
+              const Text('No products found'),
+            if (productModel.isLoading)
+              const Center(child: CircularProgressIndicator()),
+          ],
+        ),
+        const SizedBox(
+          height: 22,
+        ),
+      ].animate(interval: const Duration(milliseconds: 100)).fadeIn(),
+    );
+  }
+}
+
+// ./lib/home/wishlist/wishlist_page.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/home/models/product.dart';
+
+class WishlistPage extends StatefulWidget {
+  const WishlistPage({required this.wishlist, Key? key}) : super(key: key);
+
+  final List<Product> wishlist;
+
+  @override
+  State<WishlistPage> createState() => _WishlistPageState();
+}
+
+class _WishlistPageState extends State<WishlistPage> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        Text(
+          'Wishlist',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 16),
+        if (widget.wishlist.isEmpty) const Text('Your wishlist is empty'),
+        for (var product in widget.wishlist)
+          ListTile(
+            onTap: () {},
+            title: Text(product.name),
+            trailing: IconButton(
+              onPressed: () {
+                setState(() {
+                  widget.wishlist.remove(product);
+                });
+              },
+              icon: const Icon(Icons.delete),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+// ./lib/firebase_options.dart
+// File generated by FlutterFire CLI.
+// ignore_for_file: type=lint
+import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+
+/// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    if (kIsWeb) {
+      return web;
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return android;
+      case TargetPlatform.iOS:
+        return ios;
+      case TargetPlatform.macOS:
+        return macos;
+      case TargetPlatform.windows:
+        return windows;
+      case TargetPlatform.linux:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for linux - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
+      default:
+        throw UnsupportedError(
+          'DefaultFirebaseOptions are not supported for this platform.',
+        );
+    }
+  }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBYnm7tVjKAaIO-1qnKTsewYcl1UxXpBek',
+    appId: '1:754449716900:web:622d33814a4ca889f1b831',
+    messagingSenderId: '754449716900',
+    projectId: 'grocery-app-ref-provider',
+    authDomain: 'grocery-app-ref-provider.firebaseapp.com',
+    storageBucket: 'grocery-app-ref-provider.appspot.com',
+    measurementId: 'G-KEDERL57BM',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyCWlStnTfXf4fGoVXMR5XOOpFPopFJubNs',
+    appId: '1:754449716900:android:71eff046b0021c2ff1b831',
+    messagingSenderId: '754449716900',
+    projectId: 'grocery-app-ref-provider',
+    storageBucket: 'grocery-app-ref-provider.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCyM7cPA6HJ2o76wVqrdy4S0C9hxkUIRdA',
+    appId: '1:754449716900:ios:d50e2076ccac1051f1b831',
+    messagingSenderId: '754449716900',
+    projectId: 'grocery-app-ref-provider',
+    storageBucket: 'grocery-app-ref-provider.appspot.com',
+    iosBundleId: 'com.example.groceryTask',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCyM7cPA6HJ2o76wVqrdy4S0C9hxkUIRdA',
+    appId: '1:754449716900:ios:d50e2076ccac1051f1b831',
+    messagingSenderId: '754449716900',
+    projectId: 'grocery-app-ref-provider',
+    storageBucket: 'grocery-app-ref-provider.appspot.com',
+    iosBundleId: 'com.example.groceryTask',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBYnm7tVjKAaIO-1qnKTsewYcl1UxXpBek',
+    appId: '1:754449716900:web:5dde769925cdb833f1b831',
+    messagingSenderId: '754449716900',
+    projectId: 'grocery-app-ref-provider',
+    authDomain: 'grocery-app-ref-provider.firebaseapp.com',
+    storageBucket: 'grocery-app-ref-provider.appspot.com',
+    measurementId: 'G-XCJTX62FKN',
+  );
+}
+
+// ./lib/main.dart
+// main.dart
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:grocery_task/app.dart';
+import 'package:grocery_task/firebase_options.dart';
+import 'package:grocery_task/home/provider/categories_provider.dart';
+import 'package:grocery_task/home/provider/products_provider.dart';
+import 'package:grocery_task/home/repository/categories_repository.dart';
+import 'package:grocery_task/home/repository/products_repository.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  //DRUNTER - von mir aus VL-Folien "6.1.1_SD_Firebase_Übersicht" rauskopiert
+  // wo fälschlicherweise steht, dass die Schritte 4, 5 und 9 ausgelassen werden können
+  // was aber nicht stimmt, da die Firebase-Initialisierung explizit für die aktuelle App ist.
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  ProductsRepository productsRepository = ProductsRepository();
+  CategoryRepository categoryRepository = CategoryRepository();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => ProductsProvider(productsRepository),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CategoriesProvider(categoryRepository),
+        ),
+      ],
+      child: App(
+        preferences: prefs,
+      ),
+    ),
+  );
+}
+
+// ./lib/app.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/consts/theme/theme.dart';
+import 'package:grocery_task/home/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class App extends StatefulWidget {
+  const App({required this.preferences, super.key});
+
+  final SharedPreferences preferences;
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  bool get isDark => widget.preferences.getBool('isDark') ?? false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      theme: theme,
+      darkTheme: darkTheme,
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+      home: HomePage(
+        toggleTheme: () {
+          setState(() {
+            widget.preferences.setBool('isDark', !isDark);
+          });
+        },
+      ),
+    );
+  }
+}
+
+// ./lib/consts/theme/color_schemes.g.dart
+import 'package:flutter/material.dart';
+
+const lightColorScheme = ColorScheme(
+  brightness: Brightness.light,
+  primary: Color(0xFF006B56),
+  onPrimary: Color(0xFFFFFFFF),
+  primaryContainer: Color(0xFF7EF8D5),
+  onPrimaryContainer: Color(0xFF002018),
+  secondary: Color(0xFF006C49),
+  onSecondary: Color(0xFFFFFFFF),
+  secondaryContainer: Color(0xFF8CF7C3),
+  onSecondaryContainer: Color(0xFF002113),
+  tertiary: Color(0xFF5754A8),
+  onTertiary: Color(0xFFFFFFFF),
+  tertiaryContainer: Color(0xFFE2DFFF),
+  onTertiaryContainer: Color(0xFF100563),
+  error: Color(0xFFBA1A1A),
+  errorContainer: Color(0xFFFFDAD6),
+  onError: Color(0xFFFFFFFF),
+  onErrorContainer: Color(0xFF410002),
+  background: Color(0xFFFBFDFA),
+  onBackground: Color(0xFF191C1B),
+  surface: Color(0xFFFBFDFA),
+  onSurface: Color(0xFF191C1B),
+  surfaceVariant: Color(0xFFDBE5DF),
+  onSurfaceVariant: Color(0xFF3F4945),
+  outline: Color(0xFF6F7975),
+  onInverseSurface: Color(0xFFEFF1EE),
+  inverseSurface: Color(0xFF2E312F),
+  inversePrimary: Color(0xFF5FDBB9),
+  shadow: Color(0xFF000000),
+  surfaceTint: Color(0xFF006B56),
+  outlineVariant: Color(0xFFBFC9C3),
+  scrim: Color(0xFF000000),
+);
+
+const darkColorScheme = ColorScheme(
+  brightness: Brightness.dark,
+  primary: Color(0xFF5FDBB9),
+  onPrimary: Color(0xFF00382C),
+  primaryContainer: Color(0xFF005140),
+  onPrimaryContainer: Color(0xFF7EF8D5),
+  secondary: Color(0xFF70DBA8),
+  onSecondary: Color(0xFF003824),
+  secondaryContainer: Color(0xFF005236),
+  onSecondaryContainer: Color(0xFF8CF7C3),
+  tertiary: Color(0xFFC3C0FF),
+  onTertiary: Color(0xFF282377),
+  tertiaryContainer: Color(0xFF3F3C8F),
+  onTertiaryContainer: Color(0xFFE2DFFF),
+  error: Color(0xFFFFB4AB),
+  errorContainer: Color(0xFF93000A),
+  onError: Color(0xFF690005),
+  onErrorContainer: Color(0xFFFFDAD6),
+  background: Color(0xFF191C1B),
+  onBackground: Color(0xFFE1E3E0),
+  surface: Color(0xFF191C1B),
+  onSurface: Color(0xFFE1E3E0),
+  surfaceVariant: Color(0xFF3F4945),
+  onSurfaceVariant: Color(0xFFBFC9C3),
+  outline: Color(0xFF89938E),
+  onInverseSurface: Color(0xFF191C1B),
+  inverseSurface: Color(0xFFE1E3E0),
+  inversePrimary: Color(0xFF006B56),
+  shadow: Color(0xFF000000),
+  surfaceTint: Color(0xFF5FDBB9),
+  outlineVariant: Color(0xFF3F4945),
+  scrim: Color(0xFF000000),
+);
+
+// ./lib/consts/theme/theme.dart
+import 'package:flutter/material.dart';
+import 'package:grocery_task/consts/theme/color_schemes.g.dart';
+
+ThemeData theme = ThemeData(
+  scaffoldBackgroundColor: const Color(0xffF4F5F9),
+  colorScheme: lightColorScheme,
+  textTheme: const TextTheme(
+    headlineSmall: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+);
+
+ThemeData darkTheme = ThemeData.dark().copyWith(
+  colorScheme: darkColorScheme,
+  textTheme: const TextTheme(
+    headlineSmall: TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+);
+
