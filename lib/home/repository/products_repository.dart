@@ -1,9 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_task/home/models/product.dart';
 
+
 class ProductsRepository {
-  List<Product> getProducts() {
-    return productsMock;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<List<DocumentSnapshot>> getProducts() async {
+    QuerySnapshot querySnapshot = await _firestore.collection('products').get();
+    return querySnapshot.docs;
   }
 }
 

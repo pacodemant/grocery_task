@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     widget.toggleTheme();
                   },
-                  child: Text('Change Theme'),
+                  child: const Text('Change Theme'),
                 ),
               ].animate(interval: const Duration(milliseconds: 100)).fadeIn(),
             ),

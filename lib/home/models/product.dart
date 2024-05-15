@@ -23,6 +23,21 @@ class Product {
     this.category,
     this.badge,
   });
+
+  factory Product.fromFirestore(Map<String, dynamic> firestoreDocument) {
+    return Product(
+      name: firestoreDocument['name'],
+      description: firestoreDocument['description'],
+      price: firestoreDocument['price'],
+      imageAsset: firestoreDocument['imageAsset'],
+      //DRUNTER - die Farbe wird aus dem Firestore Dokument gelesen (ist noch String) und in einen Color-Typ umgewandelt
+      color: Color(
+        int.parse(
+          firestoreDocument['color'],
+        ),
+      ),
+    );
+  }
 }
 
 class ProductBadge {
