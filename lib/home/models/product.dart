@@ -24,6 +24,18 @@ class Product {
     this.badge,
   });
 
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'description': description,
+      'price': price,
+      'imageAsset': imageAsset,
+      'color': color.value.toString(),
+      //DRUNTER - da wir für die Aufgabe category und badge nicht brauchen, sind sie auskommentiert
+      //'category': category?.toMap(),
+      //'badge': badge?.toMap(),
+    };
+  }
   factory Product.fromFirestore(Map<String, dynamic> firestoreDocument) {
     return Product(
       name: firestoreDocument['name'],

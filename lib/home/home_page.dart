@@ -19,11 +19,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _products = ProductsRepository().getProducts();
+  Future<List<Product>>? _products;
+  final ProductsRepository _productsRepository = ProductsRepository();
 
   final Cart cart = Cart([]);
 
   final List<Product> wishlist = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _products = _productsRepository.getProducts();
+  }
 
   void onAddItem(Product product) {
     setState(() {
@@ -95,24 +102,37 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 20),
                 const ActionHeadline(title: 'Featured products'),
                 const SizedBox(height: 12),
-                Wrap(
-                  runSpacing: 20,
-                  alignment: WrapAlignment.spaceBetween,
-                  children: [
-                    for (final product in _products)
-                      ProductItem(
-                        product: product,
-                        quantity: cart.items
-                            .firstWhere((element) => element.product == product,
-                                orElse: () =>
-                                    CartItem(product: product, quantity: 0))
-                            .quantity,
-                        onAddToCart: () => onAddItem(product),
-                        onRemoveItem: () => onRemoveItem(product),
-                        toggleFavorite: () => toggleFavoriteList(product),
-                        isFavorite: wishlist.contains(product),
-                      ),
-                  ],
+                FutureBuilder<List<Product>>(
+                  future: _products,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Fehler: ${snapshot.error}');
+                    } else {
+                      final products = snapshot.data ?? [];
+                      return Wrap(
+                        runSpacing: 20,
+                        alignment: WrapAlignment.spaceBetween,
+                        children: [
+                          for (final product in products)
+                            ProductItem(
+                              product: product,
+                              quantity: cart.items
+                                  .firstWhere(
+                                      (element) => element.product == product,
+                                      orElse: () => CartItem(
+                                          product: product, quantity: 0))
+                                  .quantity,
+                              onAddToCart: () => onAddItem(product),
+                              onRemoveItem: () => onRemoveItem(product),
+                              toggleFavorite: () => toggleFavoriteList(product),
+                              isFavorite: wishlist.contains(product),
+                            ),
+                        ],
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(
                   height: 22,

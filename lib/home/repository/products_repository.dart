@@ -2,14 +2,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_task/home/models/product.dart';
 
-
 class ProductsRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference _productsCollection =
+      FirebaseFirestore.instance.collection('products');
 
-  Future<List<DocumentSnapshot>> getProducts() async {
-    QuerySnapshot querySnapshot = await _firestore.collection('products').get();
-    return querySnapshot.docs;
+  Future<List<Product>> getProducts() async {
+    final querySnapshot = await _productsCollection.get();
+    return querySnapshot.docs
+        .map((doc) => Product.fromFirestore(doc.data() as Map<String, dynamic>))
+        .toList();
   }
+
+Future<void> addProducts(List<Product> products) async {
+  for (var product in products) {
+    // Überprüfen Sie, ob das Produkt bereits in der Datenbank vorhanden ist.
+    var querySnapshot = await _productsCollection
+        .where('name', isEqualTo: product.name)
+        .get();
+
+    // Wenn das Produkt noch nicht in der Datenbank vorhanden ist, fügen Sie es hinzu.
+    if (querySnapshot.docs.isEmpty) {
+      await _productsCollection.add(product.toMap());
+    }
+  }
+}
 }
 
 final List<Product> productsMock = [
